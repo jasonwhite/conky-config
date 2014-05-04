@@ -74,8 +74,24 @@ should contain:
      * Cairo
 
 On Arch Linux, the official `conky` package does not include Cairo bindings.
-You'll have to install the `lua-conky` package from the AUR.
+You'll have to install the `lua-conky` package from the AUR instead.
 
+
+## Black background without a compositor
+
+If you are not using a compositor such Compiz or Xcompmgr, you need to change a
+setting in the file `greatcircle`. Change
+
+    own_window_argb_visual yes
+
+to:
+
+    own_window_argb_visual no
+
+This will disable true transparency. Instead, Conky will perform its own
+blending with the desktop background image.
+
+Be sure to completely restart Conky after making the change.
 
 # More Information
 
@@ -88,17 +104,17 @@ You'll have to install the `lua-conky` package from the AUR.
 MIT License:
 
     Copyright (c) 2014 Jason White
-    
+
     Permission is hereby granted, free of charge, to any person obtaining a copy of
     this software and associated documentation files (the "Software"), to deal in
     the Software without restriction, including without limitation the rights to
     use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
     the Software, and to permit persons to whom the Software is furnished to do so,
     subject to the following conditions:
-    
+
     The above copyright notice and this permission notice shall be included in all
     copies or substantial portions of the Software.
-    
+
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
     FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
