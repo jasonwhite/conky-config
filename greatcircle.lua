@@ -93,22 +93,22 @@ local settings = {
     Draws a ring in the clockwise direction.
 ]]
 local function draw_ring(cr, ring, percentage)
-	local sa, ea = ring.start_angle, ring.end_angle
+    local sa, ea = ring.start_angle, ring.end_angle
 
-	local t_arc = percentage * (ea - sa)
+    local t_arc = percentage * (ea - sa)
 
     cairo_new_sub_path(cr);
 
-	cairo_set_line_width(cr, ring.thickness)
+    cairo_set_line_width(cr, ring.thickness)
 
-	-- Draw background ring
+    -- Draw background ring
     if ring.bg then
         cairo_arc(cr, ring.x, ring.y, ring.radius, sa, ea)
         cairo_set_source_rgba(cr, unpack(ring.bg))
         cairo_stroke(cr)
     end
 
-	-- Draw foreground ring
+    -- Draw foreground ring
     if ring.fg then
         cairo_arc(cr, ring.x, ring.y, ring.radius, sa, sa + t_arc)
         cairo_set_source_rgba(cr, unpack(ring.fg))
@@ -122,22 +122,22 @@ end
     Draws a ring in the counter-clockwise direction.
 ]]
 local function draw_ring_inverse(cr, ring, percentage)
-	local sa, ea = ring.start_angle, ring.end_angle
+    local sa, ea = ring.start_angle, ring.end_angle
 
-	local t_arc = percentage * (ea - sa)
+    local t_arc = percentage * (ea - sa)
 
     cairo_new_sub_path(cr);
 
-	cairo_set_line_width(cr, ring.thickness)
+    cairo_set_line_width(cr, ring.thickness)
 
-	-- Draw background ring
+    -- Draw background ring
     if ring.bg then
         cairo_arc_negative(cr, ring.x, ring.y, ring.radius, sa, ea)
         cairo_set_source_rgba(cr, unpack(ring.bg))
         cairo_stroke(cr)
     end
 
-	-- Draw foreground ring
+    -- Draw foreground ring
     if ring.fg then
         cairo_arc_negative(cr, ring.x, ring.y, ring.radius, sa, sa + t_arc)
         cairo_set_source_rgba(cr, unpack(ring.fg))
@@ -189,12 +189,12 @@ local function draw_time_rings(cr)
     local ring = {
         bg          = {.1, .1, .1, 0.1},
         fg          = { .7, .9, 1, .5 },
-		x           = metrics.center_x,
-		y           = metrics.center_y,
-		radius      = metrics.radius - 2,
+        x           = metrics.center_x,
+        y           = metrics.center_y,
+        radius      = metrics.radius - 2,
         thickness   = 4,
-		start_angle = -math.pi * 0.5,
-		end_angle   = math.pi * 1.5
+        start_angle = -math.pi * 0.5,
+        end_angle   = math.pi * 1.5
     }
 
     -- Draw hours
@@ -351,12 +351,12 @@ local network_max = {}
 local function draw_network_ring(cr, interface, radius, thickness)
     local ring = {
         bg          = { 1, 1, 1, 0.2 },
-		x           = metrics.center_x,
-		y           = metrics.center_y,
-		radius      = radius,
-		thickness   = thickness,
-		start_angle = -math.pi * 0.98,
-		end_angle   = -math.pi * 0.52
+        x           = metrics.center_x,
+        y           = metrics.center_y,
+        radius      = radius,
+        thickness   = thickness,
+        start_angle = -math.pi * 0.98,
+        end_angle   = -math.pi * 0.52
     }
 
     local rate_up = tonumber(conky_parse("${upspeedf ".. interface .."}"))
@@ -381,7 +381,7 @@ local function draw_network_ring(cr, interface, radius, thickness)
     local p = rate_down / max[2]
     ring.fg = { percent_to_color(p, .8) }
     ring.start_angle = -math.pi * 0.02
-	ring.end_angle   = -math.pi * 0.48
+    ring.end_angle   = -math.pi * 0.48
     draw_ring_inverse(cr, ring, p);
 end
 
@@ -421,12 +421,12 @@ local function draw_memory_ring(cr)
     local ring = {
         bg          = { 1, 1, 1, 0.2 },
         fg          = { 1, 1, 1, 0.8 },
-		x           = metrics.center_x,
-		y           = metrics.center_y,
-		radius      = 130,
-		thickness   = 12,
-		start_angle = math.pi * 0.02,
-		end_angle   = math.pi * 0.98,
+        x           = metrics.center_x,
+        y           = metrics.center_y,
+        radius      = 130,
+        thickness   = 12,
+        start_angle = math.pi * 0.02,
+        end_angle   = math.pi * 0.98,
     }
 
     local p = (tonumber(conky_parse("${memperc}")) or 0) /100
@@ -457,12 +457,12 @@ local function draw_battery_widget(cr)
 
     local ring = {
         fg          = { 1, 0, 0, 1 },
-		x           = metrics.center_x,
-		y           = metrics.center_y,
-		radius      = metrics.radius - 22,
-		thickness   = 4,
-		start_angle = math.pi * -0.5,
-		end_angle   = math.pi * 1.5,
+        x           = metrics.center_x,
+        y           = metrics.center_y,
+        radius      = metrics.radius - 22,
+        thickness   = 4,
+        start_angle = math.pi * -0.5,
+        end_angle   = math.pi * 1.5,
     }
 
     local battery = conky_parse("${battery_percent}")
