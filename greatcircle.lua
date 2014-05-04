@@ -1,11 +1,32 @@
 --[[
-  Copyright: (C) 2014 Jason White
-  License: MIT License (see license file).
-  Author: Jason White
+    Copyright: (c) 2014 Jason White
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to
+    deal in the Software without restriction, including without limitation the
+    rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+    sell copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in
+    all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+    IN THE SOFTWARE.
+
+    Author: Jason White
 ]]
 
 require 'cairo'
 
+--[[
+    Configuration settings. Change these if you dare.
+]]
 local settings = {
     font = {
         -- Font used for small text (e.g., cpu info)
@@ -25,15 +46,39 @@ local settings = {
         angle_end   = math.pi * 1.75,
     },
 
-    -- Time formatting
+    --[[
+        Time formatting.
+
+        If you wish to use a
+    ]]
     time = {
-        time = "%I:%M %p",
+        --[[
+            Time format (e.g., 12:37 PM)
+
+            If you wish to use 24-hour time, you may need to adjust the font
+            and/or font size such that the text below doesn't overlap.
+        ]]
+        time = "%I:%M %p", -- 12-hour time
+        --time = "%H:%M",  -- 24-hour time
+
+        -- Day of the week
         day  = "%A",
+
+        -- Date (e.g., October 16, 2137)
         date = "%B %e, %Y",
     },
 
-    -- List of network interfaces to display
-    -- Outer rings are listed first, inner rings are listed last.
+    --[[
+        List of network interfaces to display.
+
+        You can discover your network interface names by running the "ip link"
+        command.
+
+        The number of "lanes" in the ring will automatically adjust to the
+        number of network interfaces.
+
+        Outer rings are listed first, inner rings are listed last.
+    ]]
     network = {
         "wlo1",
         "eno1",
@@ -43,6 +88,10 @@ local settings = {
     battery = 0,
 }
 
+
+--[[
+    Draws a ring in the clockwise direction.
+]]
 local function draw_ring(cr, ring, percentage)
 	local sa, ea = ring.start_angle, ring.end_angle
 
@@ -69,6 +118,9 @@ local function draw_ring(cr, ring, percentage)
     cairo_close_path(cr);
 end
 
+--[[
+    Draws a ring in the counter-clockwise direction.
+]]
 local function draw_ring_inverse(cr, ring, percentage)
 	local sa, ea = ring.start_angle, ring.end_angle
 
@@ -95,6 +147,9 @@ local function draw_ring_inverse(cr, ring, percentage)
     cairo_close_path(cr);
 end
 
+--[[
+    Draws aligned text.
+]]
 local function draw_text_aligned(cr, text, x, y, x_align, y_align)
     local extents = cairo_text_extents_t:create()
     cairo_text_extents(cr, text, extents)
@@ -120,6 +175,9 @@ local function percent_to_color(p, alpha)
     end
 end
 
+--[[
+    Useful positions and sizes. This is a table that is created on startup.
+]]
 local metrics
 
 --[[
@@ -154,6 +212,9 @@ local function draw_time_rings(cr)
 
 end
 
+--[[
+    Draws the time text
+]]
 local function draw_time_display(cr)
     local time = os.date(settings.time.time);
     local day  = os.date(settings.time.day);
@@ -206,6 +267,11 @@ local function draw_time_display(cr)
     cairo_show_text(cr, date)
 end
 
+--[[
+    Draws a single CPU widget at the specified coordinates.
+
+    The ID is a number starting at 1 for each CPU.
+]]
 local function draw_cpu_widget(cr, x, y, id)
     local ring = {
         bg          = { 1, 1, 1, 0.2 },
@@ -242,13 +308,18 @@ local function draw_cpu_widget(cr, x, y, id)
     draw_text_aligned(cr, usage .. "%", x, y + ring.radius, 0.5, 0)
 end
 
+--[[
+    Draws all CPU widgets at pre-computed coordinates.
+]]
 local function draw_cpu_widgets(cr, cpus)
     for k,v in pairs(cpus) do
         draw_cpu_widget(cr, v.x, v.y, k)
     end
 end
 
--- Calculate the positions for the CPU widgets
+--[[
+    Calculate the positions for the CPU widgets
+]]
 local function get_cpus()
     local cpus = {}
 
@@ -271,12 +342,12 @@ local function get_cpus()
     return cpus;
 end
 
-local net_watermark_e = 0 -- Ethernet
-local net_watermark_w = 0 -- Wireless
-
 -- High watermarks for each network interface
 local network_max = {}
 
+--[[
+    Draws single network ring. This includes the upload and download speeds.
+]]
 local function draw_network_ring(cr, interface, radius, thickness)
     local ring = {
         bg          = { 1, 1, 1, 0.2 },
@@ -314,6 +385,9 @@ local function draw_network_ring(cr, interface, radius, thickness)
     draw_ring_inverse(cr, ring, p);
 end
 
+--[[
+    Draws all network rings.
+]]
 local function draw_network_rings(cr)
     local group_radius = 130
     local group_thickness = 12
@@ -340,6 +414,9 @@ local function draw_network_rings(cr)
     end
 end
 
+--[[
+    Draws the memory ring.
+]]
 local function draw_memory_ring(cr)
     local ring = {
         bg          = { 1, 1, 1, 0.2 },
@@ -357,23 +434,28 @@ local function draw_memory_ring(cr)
     draw_ring(cr, ring, p);
 end
 
+-- Nice battery status names.
 local battery_state = {
     C = "Charging",
     D = "Discharging",
     F = "Full",
     E = "Empty",
+
+    -- The battery ring should not be displayed if this is the case.
     --N = "Not Present",
     --U = "Unknown",
 }
 
-local function draw_battery_ring(cr)
+--[[
+    Draws the battery ring and charge percentage.
+]]
+local function draw_battery_widget(cr)
     local state = battery_state[conky_parse("${battery_short}"):sub(1,1)]
     if not state then
         return
     end
 
     local ring = {
-        --bg          = { 1, 1, 1, 0 },
         fg          = { 1, 0, 0, 1 },
 		x           = metrics.center_x,
 		y           = metrics.center_y,
@@ -423,7 +505,6 @@ local function draw_battery_ring(cr)
         )
 end
 
-local canvas;
 local cpus;
 
 -- Called when the window size changes
@@ -436,7 +517,7 @@ local function invalidate()
         radius   = math.min(conky_window.width, conky_window.height) * .5
     }
 
-    cpus = nil
+    cpus = get_cpus()
 end
 
 function conky_main()
@@ -444,6 +525,7 @@ function conky_main()
         return
     end
 
+    -- Window size change?
     if (not metrics or
         metrics.width ~= conky_window.width or
         metrics.height ~= conky_window.height
@@ -452,6 +534,7 @@ function conky_main()
         invalidate()
     end
 
+    -- Create a surface to draw on.
     local cs = cairo_xlib_surface_create(
         conky_window.display,
         conky_window.drawable,
@@ -461,17 +544,15 @@ function conky_main()
         )
     local cr = cairo_create(cs)
 
-    if cpus == nil then
-        cpus = get_cpus()
-    end
-
+    -- Draw all the widgets
     draw_network_rings(cr)
     draw_memory_ring(cr)
-    draw_battery_ring(cr)
+    draw_battery_widget(cr)
     draw_cpu_widgets(cr, cpus)
     draw_time_rings(cr)
     draw_time_display(cr)
 
+    -- Cleanup
     cairo_destroy(cr)
     cairo_surface_destroy(cs)
 end

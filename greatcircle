@@ -4,22 +4,22 @@
 # Display at an exact position and size on the desktop. This is useful if the
 # desktop background goes well with this Conky.
 #
-#alignment top_left
-#gap_x 659
-#gap_y 189
-#minimum_size 536 536
-#own_window yes
-#own_window_type override
+alignment top_left
+gap_x 659
+gap_y 189
+minimum_size 536 536
+own_window yes
+own_window_type override
 
 #
 # Display on the center of the desktop
 #
-alignment middle_middle
-gap_x 0
-gap_y 0
-minimum_size 536 536
-own_window yes
-own_window_type override
+#alignment middle_middle
+#gap_x 0
+#gap_y 0
+#minimum_size 536 536
+#own_window yes
+#own_window_type override
 
 
 #
