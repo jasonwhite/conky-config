@@ -1,6 +1,20 @@
+--[[
+  Copyright: (C) 2014 Jason White
+  License: MIT License (see license file).
+  Author: Jason White
+]]
+
 require 'cairo'
 
 local settings = {
+    font = {
+        -- Font used for small text (e.g., cpu info)
+        small = "Cantarell",
+
+        -- Font used for large text (e.g., time)
+        large = "Impact",
+    },
+
     cpu = {
         -- Number of CPUs
         count = 4,
@@ -11,6 +25,7 @@ local settings = {
         angle_end   = math.pi * 1.75,
     },
 
+    -- Time formatting
     time = {
         time = "%I:%M %p",
         day  = "%A",
@@ -147,7 +162,7 @@ local function draw_time_display(cr)
     local extents = cairo_text_extents_t:create()
 
     -- Set the time font
-    cairo_select_font_face(cr, "Impact", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+    cairo_select_font_face(cr, settings.font.large, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size(cr, 56);
 
     -- Get the size of the time text
@@ -165,7 +180,7 @@ local function draw_time_display(cr)
     cairo_show_text(cr, time);
 
     -- Set the day/date font
-    cairo_select_font_face(cr, "Cantarell", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+    cairo_select_font_face(cr, settings.font.small, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
     cairo_set_font_size(cr, 15);
 
     -- Get the size of the day text
@@ -210,7 +225,7 @@ local function draw_cpu_widget(cr, x, y, id)
     draw_ring(cr, ring, percent);
 
     -- Draw the CPU ID
-    cairo_select_font_face(cr, "Cantarell", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+    cairo_select_font_face(cr, settings.font.small, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
     cairo_set_font_size(cr, 10);
     cairo_set_source_rgb(cr, .8, .8, .8);
 
@@ -387,7 +402,7 @@ local function draw_battery_ring(cr)
 
     draw_ring(cr, ring, p);
 
-    cairo_select_font_face(cr, "Impact", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+    cairo_select_font_face(cr, settings.font.large, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size(cr, 40);
     cairo_set_source_rgba(cr, 1, 1, 1, .7);
 
@@ -398,7 +413,7 @@ local function draw_battery_ring(cr)
         y - 62, .5, 0
         )
 
-    cairo_select_font_face(cr, "Cantarell", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+    cairo_select_font_face(cr, settings.font.small, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
     cairo_set_font_size(cr, 12);
     cairo_set_source_rgb(cr, 0.01, 0.75, 1);
 
