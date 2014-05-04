@@ -59,16 +59,29 @@ time formatting can be configured in `greatcircle.lua`.
 
 # Trouble Shooting?
 
+It's okay, we all have trouble shooting sometimes.
+
 ## Missing Cairo Lua bindings
 
 If you get an error that the `cairo` Lua package cannot be found then be sure
-your version of Conky has Cairo bindings for Lua:
+that your version of Conky has Cairo bindings for Lua. The output of
 
     $ conky -v
-    [...]
-      Lua bindings:
-       * Cairo
-    [...]
+
+should contain:
+
+    Lua bindings:
+     * Cairo
+
+On Arch Linux, the official `conky` package does not include Cairo bindings.
+You'll have to install the `lua-conky` package from the AUR.
+
+
+# More Information
+
+ * [Conky Documentation](http://conky.sourceforge.net/documentation.html)
+ * [Arch Linux Conky Wiki Page](https://wiki.archlinux.org/index.php/Conky)
+ * [Ubuntu Help Page](https://help.ubuntu.com/community/SettingUpConky)
 
 # License
 
