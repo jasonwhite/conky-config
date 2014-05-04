@@ -17,7 +17,7 @@ Conky on my desktop and with a battery attached:
 
 # Dependencies
 
- * Conky with Lua support.
+ * Conky with Lua support and Cairo bindings.
  * Cantarell and Impact fonts.
 
 # Installation
@@ -56,6 +56,19 @@ Other possible arrangements are commented out in the same file.
 
 Settings such as the fonts used, number of CPUs, network interface names, and
 time formatting can be configured in `greatcircle.lua`.
+
+# Trouble Shooting?
+
+## Missing Cairo Lua bindings
+
+If you get an error that the `cairo` Lua package cannot be found then be sure
+your version of Conky has Cairo bindings for Lua:
+
+    $ conky -v
+    [...]
+      Lua bindings:
+       * Cairo
+    [...]
 
 # License
 
