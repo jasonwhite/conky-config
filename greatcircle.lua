@@ -38,7 +38,7 @@ local settings = {
 
     cpu = {
         -- Number of CPUs
-        count = 4,
+        count =  4,
 
         -- Starting and ending angles
         -- 0 and math.pi*2 are at 3:00 on a clock
@@ -48,8 +48,6 @@ local settings = {
 
     --[[
         Time formatting.
-
-        If you wish to use a
     ]]
     time = {
         --[[
@@ -97,7 +95,7 @@ local function draw_ring(cr, ring, percentage)
 
     local t_arc = percentage * (ea - sa)
 
-    cairo_new_sub_path(cr);
+    cairo_new_sub_path(cr)
 
     cairo_set_line_width(cr, ring.thickness)
 
@@ -115,7 +113,7 @@ local function draw_ring(cr, ring, percentage)
         cairo_stroke(cr)
     end
 
-    cairo_close_path(cr);
+    cairo_close_path(cr)
 end
 
 --[[
@@ -126,7 +124,7 @@ local function draw_ring_inverse(cr, ring, percentage)
 
     local t_arc = percentage * (ea - sa)
 
-    cairo_new_sub_path(cr);
+    cairo_new_sub_path(cr)
 
     cairo_set_line_width(cr, ring.thickness)
 
@@ -144,20 +142,24 @@ local function draw_ring_inverse(cr, ring, percentage)
         cairo_stroke(cr)
     end
 
-    cairo_close_path(cr);
+    cairo_close_path(cr)
 end
 
 --[[
     Draws aligned text.
 ]]
 local function draw_text_aligned(cr, text, x, y, x_align, y_align)
+
     local extents = cairo_text_extents_t:create()
     cairo_text_extents(cr, text, extents)
-    cairo_move_to(cr,
-        x - extents.width * x_align,
-        y - extents.height * y_align
-        );
-    cairo_show_text(cr, text);
+
+    local x = x - extents.width * x_align
+    local y = y - extents.height * y_align
+
+    cairo_move_to(cr, x, y)
+    cairo_show_text(cr, text)
+
+    return x, y, extents.width, extents.height
 end
 
 --[[
@@ -184,7 +186,7 @@ local metrics
     Draws the time widget
 ]]
 local function draw_time_rings(cr)
-    local t = os.date("*t");
+    local t = os.date("*t")
 
     local ring = {
         bg          = {.1, .1, .1, 0.1},
@@ -198,17 +200,17 @@ local function draw_time_rings(cr)
     }
 
     -- Draw hours
-    draw_ring(cr, ring, (t.hour % 12) / 12);
+    draw_ring(cr, ring, (t.hour % 12) / 12)
 
     -- Draw minutes
-    ring.radius = ring.radius - ring.thickness - 2;
+    ring.radius = ring.radius - ring.thickness - 2
     ring.fg[4] = 0.6
-    draw_ring(cr, ring, t.min / 60);
+    draw_ring(cr, ring, t.min / 60)
 
     -- Draw seconds
-    ring.radius = ring.radius - ring.thickness - 2;
+    ring.radius = ring.radius - ring.thickness - 2
     ring.fg[4] = 0.7
-    draw_ring(cr, ring, t.sec / 60);
+    draw_ring(cr, ring, t.sec / 60)
 
 end
 
@@ -216,33 +218,41 @@ end
     Draws the time text
 ]]
 local function draw_time_display(cr)
-    local time = os.date(settings.time.time);
-    local day  = os.date(settings.time.day);
-    local date = os.date(settings.time.date);
+    local time = os.date(settings.time.time)
+    local day  = os.date(settings.time.day)
+    local date = os.date(settings.time.date)
 
     local extents = cairo_text_extents_t:create()
 
     -- Set the time font
-    cairo_select_font_face(cr, settings.font.large, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-    cairo_set_font_size(cr, 56);
+    cairo_select_font_face(cr,
+        settings.font.large,
+        CAIRO_FONT_SLANT_NORMAL,
+        CAIRO_FONT_WEIGHT_NORMAL
+        )
+    cairo_set_font_size(cr, 56)
 
     -- Get the size of the time text
     cairo_text_extents(cr, time, extents)
 
-    local time_w = extents.width;
+    local time_w = extents.width
 
     -- Center horizontally
     local time_x = metrics.center_x - time_w / 2
-    local time_y = metrics.center_y
+    local time_y = metrics.center_y + 16
 
-    -- Draw the text
-    cairo_set_source_rgba(cr, 1, 1, 1, 0.7);
-    cairo_move_to(cr, time_x, time_y);
-    cairo_show_text(cr, time);
+    -- Draw the time
+    cairo_set_source_rgba(cr, 1, 1, 1, 0.7)
+    cairo_move_to(cr, time_x, time_y)
+    cairo_show_text(cr, time)
 
     -- Set the day/date font
-    cairo_select_font_face(cr, settings.font.small, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
-    cairo_set_font_size(cr, 15);
+    cairo_select_font_face(cr,
+        settings.font.small,
+        CAIRO_FONT_SLANT_NORMAL,
+        CAIRO_FONT_WEIGHT_BOLD
+        )
+    cairo_set_font_size(cr, 15)
 
     -- Get the size of the day text
     cairo_text_extents(cr, day, extents)
@@ -288,12 +298,12 @@ local function draw_cpu_widget(cr, x, y, id)
 
     ring.fg = { percent_to_color(percent, 0.8) }
 
-    draw_ring(cr, ring, percent);
+    draw_ring(cr, ring, percent)
 
     -- Draw the CPU ID
-    cairo_select_font_face(cr, settings.font.small, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
-    cairo_set_font_size(cr, 10);
-    cairo_set_source_rgb(cr, .8, .8, .8);
+    cairo_select_font_face(cr, settings.font.small, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD)
+    cairo_set_font_size(cr, 10)
+    cairo_set_source_rgb(cr, .8, .8, .8)
 
     -- Draw the name
     draw_text_aligned(cr, "CPU " .. id, x, y - 4, 0.5, 0.5)
@@ -339,7 +349,7 @@ local function get_cpus()
         angle = angle + angle_inc
     end
 
-    return cpus;
+    return cpus
 end
 
 -- High watermarks for each network interface
@@ -365,7 +375,7 @@ local function draw_network_ring(cr, interface, radius, thickness)
     -- Calculate high water marks
     local max = network_max[interface]
     if not max then
-        max = {1, 1}
+        max = {48, 128}
     end
 
     max[1] = math.max(max[1], rate_up)
@@ -375,22 +385,21 @@ local function draw_network_ring(cr, interface, radius, thickness)
     -- Upload speed bar
     local p = rate_up / max[1]
     ring.fg = { percent_to_color(p, .8) }
-    draw_ring(cr, ring, p);
+    draw_ring(cr, ring, p)
 
     -- Download speed bar
     local p = rate_down / max[2]
     ring.fg = { percent_to_color(p, .8) }
     ring.start_angle = -math.pi * 0.02
     ring.end_angle   = -math.pi * 0.48
-    draw_ring_inverse(cr, ring, p);
+    draw_ring_inverse(cr, ring, p)
 end
 
 --[[
     Draws all network rings.
 ]]
-local function draw_network_rings(cr)
-    local group_radius = 130
-    local group_thickness = 12
+local function draw_network_rings(cr, radius)
+    local thickness = 12
     local spacing = 1
 
     local interfaces = settings.network
@@ -400,38 +409,100 @@ local function draw_network_rings(cr)
         return
     end
 
-    local thickness = (group_thickness - spacing*(n - 1))/n
+    -- Thickness of each ring
+    local ring_thickness = (thickness - spacing*(n - 1))/n
 
-    -- Starting radius
-    local radius = group_radius + (group_thickness - thickness) * .5
+    -- Starting ring radius
+    local ring_radius = radius + (thickness - ring_thickness) * .5
 
     -- Draw the first ring
-    draw_network_ring(cr, interfaces[1], radius, thickness)
+    draw_network_ring(cr, interfaces[1], ring_radius, ring_thickness)
 
     for i=2, n do
-        radius = radius - thickness - spacing
-        draw_network_ring(cr, interfaces[i], radius, thickness)
+        ring_radius = ring_radius - ring_thickness - spacing
+        draw_network_ring(cr, interfaces[i], ring_radius, ring_thickness)
+    end
+
+    cairo_select_font_face(cr,
+        settings.font.small,
+        CAIRO_FONT_SLANT_NORMAL,
+        CAIRO_FONT_WEIGHT_NORMAL
+        )
+    cairo_set_font_size(cr, 11)
+    cairo_set_source_rgba(cr, 1, 1, 1, .6)
+
+    -- Draw the stats for each interface
+    for k,v in ipairs(interfaces) do
+        local upspeed = conky_parse(("${upspeed %s}"):format(v)):gsub("%s+$", "")
+        local downspeed = conky_parse(("${downspeed %s}"):format(v)):gsub("%s+$", "")
+
+        -- Only show the stats if something is happening
+        if upspeed ~= "0B" then
+            draw_text_aligned(cr, upspeed .. "/s",
+                metrics.center_x - 16,
+                metrics.center_y - radius + 48 + (k-1) * 16,
+                1, 0
+                )
+        end
+
+        if downspeed ~= "0B" then
+            draw_text_aligned(cr, downspeed .. "/s",
+                metrics.center_x + 16,
+                metrics.center_y - radius + 48 + (k-1) * 16,
+                0, 0
+                )
+        end
     end
 end
 
 --[[
     Draws the memory ring.
 ]]
-local function draw_memory_ring(cr)
+local function draw_memory_widget(cr, radius)
     local ring = {
         bg          = { 1, 1, 1, 0.2 },
         fg          = { 1, 1, 1, 0.8 },
         x           = metrics.center_x,
         y           = metrics.center_y,
-        radius      = 130,
+        radius      = radius,
         thickness   = 12,
         start_angle = math.pi * 0.02,
         end_angle   = math.pi * 0.98,
     }
 
-    local p = (tonumber(conky_parse("${memperc}")) or 0) /100
+    local used = conky_parse("${mem}")
+    local total = conky_parse("${memmax}")
+    local percent = (tonumber(conky_parse("${memperc}")) or 0)
 
-    draw_ring(cr, ring, p);
+    -- Draw the ring
+    draw_ring(cr, ring, percent / 100)
+
+    -- Draw the memory usage
+    cairo_select_font_face(cr,
+        settings.font.small,
+        CAIRO_FONT_SLANT_NORMAL,
+        CAIRO_FONT_WEIGHT_NORMAL
+        )
+    cairo_set_font_size(cr, 11)
+    cairo_set_source_rgba(cr, 1, 1, 1, .6)
+
+    local _, y, _, h = draw_text_aligned(cr, used .." / ".. total,
+        metrics.center_x, metrics.center_y + radius - 36,
+        .5, 0
+        )
+
+    -- Draw the memory usage percentage
+    cairo_select_font_face(cr,
+        settings.font.small,
+        CAIRO_FONT_SLANT_NORMAL,
+        CAIRO_FONT_WEIGHT_BOLD
+        )
+    cairo_set_font_size(cr, 10)
+    cairo_set_source_rgba(cr, 0.01, 0.75, 1, .9)
+    draw_text_aligned(cr, percent .. "%",
+        metrics.center_x, y + h + 4,
+        .5, 0
+        )
 end
 
 -- Nice battery status names.
@@ -441,7 +512,7 @@ local battery_state = {
     F = "Full",
     E = "Empty",
 
-    -- The battery ring should not be displayed if this is the case.
+    -- The battery widget should not be displayed if this is the case.
     --N = "Not Present",
     --U = "Unknown",
 }
@@ -482,11 +553,11 @@ local function draw_battery_widget(cr)
         end
     end
 
-    draw_ring(cr, ring, p);
+    draw_ring(cr, ring, p)
 
-    cairo_select_font_face(cr, settings.font.large, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-    cairo_set_font_size(cr, 40);
-    cairo_set_source_rgba(cr, 1, 1, 1, .7);
+    cairo_select_font_face(cr, settings.font.large, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL)
+    cairo_set_font_size(cr, 40)
+    cairo_set_source_rgba(cr, 1, 1, 1, .7)
 
     local y = metrics.center_y + metrics.radius
 
@@ -495,9 +566,9 @@ local function draw_battery_widget(cr)
         y - 62, .5, 0
         )
 
-    cairo_select_font_face(cr, settings.font.small, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
-    cairo_set_font_size(cr, 12);
-    cairo_set_source_rgb(cr, 0.01, 0.75, 1);
+    cairo_select_font_face(cr, settings.font.small, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD)
+    cairo_set_font_size(cr, 12)
+    cairo_set_source_rgb(cr, 0.01, 0.75, 1)
 
     draw_text_aligned(cr, state,
         metrics.center_x,
@@ -505,7 +576,7 @@ local function draw_battery_widget(cr)
         )
 end
 
-local cpus;
+local cpus
 
 -- Called when the window size changes
 local function invalidate()
@@ -545,8 +616,8 @@ function conky_main()
     local cr = cairo_create(cs)
 
     -- Draw all the widgets
-    draw_network_rings(cr)
-    draw_memory_ring(cr)
+    draw_network_rings(cr, 130)
+    draw_memory_widget(cr, 130)
     draw_battery_widget(cr)
     draw_cpu_widgets(cr, cpus)
     draw_time_rings(cr)
