@@ -86,6 +86,45 @@ local settings = {
     battery = 0,
 }
 
+--[[
+    Dark color scheme
+]]
+local dark_color_scheme = {
+    -- Primary ring color
+    ring = {
+        bg = { 1, 1, 1, 0.2 },
+        fg = { 1, 1, 1, 0.8 },
+    },
+
+    -- Alternate ring color
+    ring_alt = {
+        bg = { 1, 1, 1, 0.2 },
+        fg = { .7, .9, 1, .5 },
+    },
+
+    -- Primary text color
+    text = { 1, 1, 1, 0.7 },
+
+    -- Alternate text color
+    text_alt = { 0.01, 0.75, 1, .9 },
+
+    -- Temperature colors
+    -- As many colors as desired can be added to this table.
+    temperature = {
+        { .7, .9, 1, 0.9 },
+        { 1,  1, 0, 0.9 },
+        { 1, .5, 0, 0.9 },
+        { 1,  0, 0, 0.9 },
+    },
+}
+
+--[[
+    Selects the color scheme.
+
+    Options are: dark_color_scheme
+]]
+local colors = dark_color_scheme
+
 
 --[[
     Draws a ring in the clockwise direction.
@@ -177,6 +216,10 @@ local function percent_to_color(p, alpha)
     end
 end
 
+local function percent_index(p, t)
+    return t[math.min(math.floor(p * #t) + 1, #t)]
+end
+
 --[[
     Useful positions and sizes. This is a table that is created on startup.
 ]]
@@ -189,8 +232,8 @@ local function draw_time_rings(cr)
     local t = os.date("*t")
 
     local ring = {
-        bg          = {.1, .1, .1, 0.1},
-        fg          = { .7, .9, 1, .5 },
+        bg          = colors.ring_alt.bg,
+        fg          = colors.ring_alt.fg,
         x           = metrics.center_x,
         y           = metrics.center_y,
         radius      = metrics.radius - 2,
@@ -242,7 +285,7 @@ local function draw_time_display(cr)
     local time_y = metrics.center_y + 16
 
     -- Draw the time
-    cairo_set_source_rgba(cr, 1, 1, 1, 0.7)
+    cairo_set_source_rgba(cr, unpack(colors.text))
     cairo_move_to(cr, time_x, time_y)
     cairo_show_text(cr, time)
 
@@ -261,7 +304,7 @@ local function draw_time_display(cr)
     local day_y = time_y + extents.height + 2
 
     -- Draw the day
-    cairo_set_source_rgb(cr, 0.01, 0.75, 1)
+    cairo_set_source_rgba(cr, unpack(colors.text_alt))
     cairo_move_to(cr, day_x, day_y)
     cairo_show_text(cr, day)
 
@@ -284,7 +327,7 @@ end
 ]]
 local function draw_cpu_widget(cr, x, y, id)
     local ring = {
-        bg          = { 1, 1, 1, 0.2 },
+        bg          = colors.ring.bg,
         x           = x,
         y           = y,
         radius      = 32,
@@ -296,14 +339,14 @@ local function draw_cpu_widget(cr, x, y, id)
     local usage = tonumber(conky_parse("${cpu cpu".. id .."}")) or 0
     local percent = usage/100
 
-    ring.fg = { percent_to_color(percent, 0.8) }
+    ring.fg = percent_index(percent, colors.temperature)
 
     draw_ring(cr, ring, percent)
 
     -- Draw the CPU ID
     cairo_select_font_face(cr, settings.font.small, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD)
     cairo_set_font_size(cr, 10)
-    cairo_set_source_rgb(cr, .8, .8, .8)
+    cairo_set_source_rgba(cr, unpack(colors.text))
 
     -- Draw the name
     draw_text_aligned(cr, "CPU " .. id, x, y - 4, 0.5, 0.5)
@@ -360,7 +403,7 @@ local network_max = {}
 ]]
 local function draw_network_ring(cr, interface, radius, thickness)
     local ring = {
-        bg          = { 1, 1, 1, 0.2 },
+        bg          = colors.ring.bg,
         x           = metrics.center_x,
         y           = metrics.center_y,
         radius      = radius,
@@ -384,12 +427,12 @@ local function draw_network_ring(cr, interface, radius, thickness)
 
     -- Upload speed bar
     local p = rate_up / max[1]
-    ring.fg = { percent_to_color(p, .8) }
+    ring.fg = percent_index(p, colors.temperature)
     draw_ring(cr, ring, p)
 
     -- Download speed bar
     local p = rate_down / max[2]
-    ring.fg = { percent_to_color(p, .8) }
+    ring.fg = percent_index(p, colors.temperature)
     ring.start_angle = -math.pi * 0.02
     ring.end_angle   = -math.pi * 0.48
     draw_ring_inverse(cr, ring, p)
@@ -429,7 +472,7 @@ local function draw_network_rings(cr, radius)
         CAIRO_FONT_WEIGHT_NORMAL
         )
     cairo_set_font_size(cr, 11)
-    cairo_set_source_rgba(cr, 1, 1, 1, .6)
+    cairo_set_source_rgba(cr, unpack(colors.text))
 
     -- Draw the stats for each interface
     for k,v in ipairs(interfaces) do
@@ -460,8 +503,8 @@ end
 ]]
 local function draw_memory_widget(cr, radius)
     local ring = {
-        bg          = { 1, 1, 1, 0.2 },
-        fg          = { 1, 1, 1, 0.8 },
+        bg          = colors.ring.bg,
+        fg          = colors.ring.fg,
         x           = metrics.center_x,
         y           = metrics.center_y,
         radius      = radius,
@@ -484,7 +527,7 @@ local function draw_memory_widget(cr, radius)
         CAIRO_FONT_WEIGHT_NORMAL
         )
     cairo_set_font_size(cr, 11)
-    cairo_set_source_rgba(cr, 1, 1, 1, .6)
+    cairo_set_source_rgba(cr, unpack(colors.text))
 
     local _, y, _, h = draw_text_aligned(cr, used .." / ".. total,
         metrics.center_x, metrics.center_y + radius - 36,
@@ -498,7 +541,7 @@ local function draw_memory_widget(cr, radius)
         CAIRO_FONT_WEIGHT_BOLD
         )
     cairo_set_font_size(cr, 10)
-    cairo_set_source_rgba(cr, 0.01, 0.75, 1, .9)
+    cairo_set_source_rgba(cr, unpack(colors.text_alt))
     draw_text_aligned(cr, percent .. "%",
         metrics.center_x, y + h + 4,
         .5, 0
@@ -527,7 +570,6 @@ local function draw_battery_widget(cr)
     end
 
     local ring = {
-        fg          = { 1, 0, 0, 1 },
         x           = metrics.center_x,
         y           = metrics.center_y,
         radius      = metrics.radius - 22,
@@ -539,25 +581,13 @@ local function draw_battery_widget(cr)
     local battery = conky_parse("${battery_percent}")
     local p = tonumber(battery)/100
 
-    if p > .5 then
-        if p > .75 then
-            ring.fg = { 0, 1, 0, 1 }
-        else
-            ring.fg = { 1, 1, 0, 1 }
-        end
-    else
-        if p > .25 then
-            ring.fg = { 1, .5, 0, 1 }
-        else
-            ring.fg = { 1, 0, 0, 1 }
-        end
-    end
+    ring.fg = percent_index(p, colors.temperature)
 
     draw_ring(cr, ring, p)
 
     cairo_select_font_face(cr, settings.font.large, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL)
     cairo_set_font_size(cr, 40)
-    cairo_set_source_rgba(cr, 1, 1, 1, .7)
+    cairo_set_source_rgba(cr, unpack(colors.text))
 
     local y = metrics.center_y + metrics.radius
 
@@ -568,7 +598,7 @@ local function draw_battery_widget(cr)
 
     cairo_select_font_face(cr, settings.font.small, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD)
     cairo_set_font_size(cr, 12)
-    cairo_set_source_rgb(cr, 0.01, 0.75, 1)
+    cairo_set_source_rgba(cr, unpack(colors.text_alt))
 
     draw_text_aligned(cr, state,
         metrics.center_x,
