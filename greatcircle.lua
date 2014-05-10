@@ -32,7 +32,7 @@ local settings = {
         -- Font used for small text (e.g., cpu info)
         small = "Cantarell",
 
-        -- Font used for large text (e.g., time)
+        -- Font used for large text (e.g., time, battery percentage)
         large = "Impact",
     },
 
@@ -42,8 +42,8 @@ local settings = {
 
         -- Starting and ending angles
         -- 0 and math.pi*2 are at 3:00 on a clock
-        angle_start = math.pi * 1.25,
-        angle_end   = math.pi * 1.75,
+        angle_start = 1.25 * math.pi,
+        angle_end   = 1.75 * math.pi,
     },
 
     --[[
@@ -87,13 +87,15 @@ local settings = {
 }
 
 --[[
-    Dark color scheme
+    Color scheme best for a dark desktop background.
 ]]
 local dark_color_scheme = {
+    bg = { 0, 0, 0, .4 },
+
     -- Primary ring color
     ring = {
         bg = { 1, 1, 1, 0.2 },
-        fg = { 1, 1, 1, 0.8 },
+        fg = { 1, 1, 1, 0.9 },
     },
 
     -- Alternate ring color
@@ -103,7 +105,7 @@ local dark_color_scheme = {
     },
 
     -- Primary text color
-    text = { 1, 1, 1, 0.7 },
+    text = { 1, 1, 1, 0.9 },
 
     -- Alternate text color
     text_alt = { 0.01, 0.75, 1, .9 },
@@ -120,8 +122,6 @@ local dark_color_scheme = {
 
 --[[
     Selects the color scheme.
-
-    Options are: dark_color_scheme
 ]]
 local colors = dark_color_scheme
 
@@ -631,7 +631,7 @@ function conky_main()
         metrics.width ~= conky_window.width or
         metrics.height ~= conky_window.height
         ) then
-        print("Window invalidated")
+        --print("Window invalidated")
         invalidate()
     end
 
@@ -644,6 +644,18 @@ function conky_main()
         conky_window.height
         )
     local cr = cairo_create(cs)
+
+    -- Draw the background
+    if colors.bg then
+        cairo_save(cr)
+        cairo_translate(cr, 1, 1)
+        cairo_scale(cr, conky_window.width-2, conky_window.height-2)
+        cairo_arc(cr, .5, .5, .5, 0, 2*math.pi)
+        cairo_set_source_rgba(cr, unpack(colors.bg))
+        cairo_fill_preserve(cr)
+        cairo_restore(cr)
+        cairo_stroke(cr)
+    end
 
     -- Draw all the widgets
     draw_network_rings(cr, 130)
