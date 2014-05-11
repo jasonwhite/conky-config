@@ -90,7 +90,9 @@ local settings = {
     Color scheme best for a dark desktop background.
 ]]
 local dark_color_scheme = {
-    bg = { 0, 0, 0, .4 },
+    -- Background color of the entire circle. This can be commented out if no
+    -- background is desired.
+    --bg = { 0, 0, 0, .4 },
 
     -- Primary ring color
     ring = {
@@ -552,8 +554,8 @@ local function draw_battery_widget(cr)
     local ring = {
         x           = .5,
         y           = .5,
-        radius      = .5 - 22/536,
-        thickness   = 4,
+        radius      = .5 - 24/536,
+        thickness   = 8/536,
         start_angle = math.pi * -0.5,
         end_angle   = math.pi * 1.5,
     }
