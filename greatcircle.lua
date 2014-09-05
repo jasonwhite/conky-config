@@ -38,12 +38,12 @@ local settings = {
 
     cpu = {
         -- Number of CPUs
-        count =  4,
+        count =  8,
 
         -- Starting and ending angles
         -- 0 and math.pi*2 are at 3:00 on a clock
-        angle_start = 1.25 * math.pi,
-        angle_end   = 1.75 * math.pi,
+        angle_start = 1 * math.pi,
+        angle_end   = 2 * math.pi,
     },
 
     --[[
@@ -78,12 +78,12 @@ local settings = {
         Outer rings are listed first, inner rings are listed last.
     ]]
     network = {
-        "wlo1",
-        "eno1",
+        "enp5s0",
+        --"eno1",
     },
 
     -- Battery ID
-    battery = 0,
+    --battery = 0,
 }
 
 --[[
@@ -116,6 +116,15 @@ local dark_color_scheme = {
     -- As many colors as desired can be added to this table.
     temperature = {
         { .7, .9, 1, 0.9 },
+        { 1,  1, 0, 0.9 },
+        { 1, .5, 0, 0.9 },
+        { 1,  0, 0, 0.9 },
+    },
+
+    -- Battery colors
+    -- As many colors as desired can be added to this table.
+    battery = {
+        { 0,  1, 0, 0.9 },
         { 1,  1, 0, 0.9 },
         { 1, .5, 0, 0.9 },
         { 1,  0, 0, 0.9 },
@@ -277,7 +286,7 @@ local function draw_time_display(cr)
         CAIRO_FONT_SLANT_NORMAL,
         CAIRO_FONT_WEIGHT_BOLD
         )
-    cairo_set_font_size(cr, 15/536)
+    cairo_set_font_size(cr, 13/536)
 
     -- Get the size of the day text
     cairo_text_extents(cr, day, extents)
@@ -364,7 +373,7 @@ local function get_cpus()
     local angle_end   = settings.cpu.angle_end
     local angle_inc   = (angle_end - angle_start) / (settings.cpu.count-1)
     local angle       = angle_start -- current angle
-    local length      = .5 - 84/536
+    local length      = .5 - 74/536
 
     for i=1, settings.cpu.count do
         table.insert(cpus, {
@@ -563,7 +572,7 @@ local function draw_battery_widget(cr)
     local battery = conky_parse("${battery_percent}")
     local p = tonumber(battery)/100
 
-    ring.fg = percent_index(p, colors.temperature)
+    ring.fg = percent_index(1-p, colors.battery)
 
     draw_ring(cr, ring, p)
 
@@ -639,7 +648,11 @@ function conky_main()
     -- Draw all the widgets
     draw_network_rings(cr, 130/536)
     draw_memory_widget(cr, 130/536)
-    draw_battery_widget(cr)
+
+    if settings.battery then
+        draw_battery_widget(cr)
+    end
+
     draw_cpu_widgets(cr, cpus)
     draw_time_rings(cr)
     draw_time_display(cr)

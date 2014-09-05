@@ -5,8 +5,10 @@
 # desktop background goes well with this Conky.
 #
 alignment top_left
-gap_x 659
-gap_y 189
+#gap_x 659
+#gap_y 189
+gap_x 32
+gap_y 32
 minimum_size 536 536
 own_window yes
 own_window_type override
