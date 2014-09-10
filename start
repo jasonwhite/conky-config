@@ -1,3 +1,2 @@
 #!/bin/sh
-
 conky --config ~/.config/conky/greatcircle --daemonize
