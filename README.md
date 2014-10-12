@@ -1,7 +1,7 @@
 # "Great Circle" Conky Config
 
-This is my [Conky][] configuration. It is purely Lua-drawn and automatically
-adjusts to the size of the Conky window.
+This is a [Conky][] configuration that is drawn on your desktop background and provides useful
+information about your system.
 
 [Conky]: http://en.wikipedia.org/wiki/Conky_(software)
 
@@ -15,6 +15,8 @@ adjusts to the size of the Conky window.
     - Battery charge and charging state.
  * Auto-detects the number of CPU cores and network interfaces.
  * Highly configurable, but should work with little to no configuration.
+ * Scalable and positionable.
+ * Purely Lua-drawn.
 
 # Screenshots
 
