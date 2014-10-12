@@ -37,13 +37,17 @@ local settings = {
     },
 
     cpu = {
-        -- Number of CPUs
-        count =  8,
+        -- Number of CPUs. Use 0 to auto-detect the number.
+        count =  0,
 
-        -- Starting and ending angles
-        -- 0 and math.pi*2 are at 3:00 on a clock
-        angle_start = 1 * math.pi,
-        angle_end   = 2 * math.pi,
+        --[[
+            Starting and ending angles of CPU widgets in radians. (This adjusts
+            the spread.) Angles start 3:00 on a clock and increase in the
+            clockwise direction. (Recall that 2*pi radians constitutes one full
+            cycle.)
+        ]]
+        angle_start = 1 * math.pi, -- Start at 9:00
+        angle_end   = 2 * math.pi, -- and increase to 3:00
     },
 
     --[[
@@ -67,19 +71,28 @@ local settings = {
     },
 
     --[[
-        List of network interfaces to display.
-
-        You can discover your network interface names by running the "ip link"
-        command.
-
-        The number of "lanes" in the ring will automatically adjust to the
-        number of network interfaces.
-
-        Outer rings are listed first, inner rings are listed last.
+        Network settings
     ]]
     network = {
-        "enp5s0",
-        --"eno1",
+        --[[
+            List of network interfaces to display. Comment out for network
+            interfaces to be automatically detected.
+
+            You can discover your network interface names by running "ip link
+            show" command or listing the directory "/sys/class/net/". (Network
+            interfaces are automatically detected using the latter method.)
+
+            The number of "lanes" in the ring will automatically adjust to the
+            number of network interfaces.
+
+            Outer rings are listed first, inner rings are listed last.
+        ]]
+        --interfaces = {"eth0", "wlan1"},
+
+        --[[
+            Interface names to ignore when autodetecting.
+        ]]
+        ignore = {"lo"},
     },
 
     -- Battery ID
@@ -87,7 +100,7 @@ local settings = {
 }
 
 --[[
-    Color scheme best for a dark desktop background.
+    Color scheme best for a somewhat dark desktop background.
 ]]
 local dark_color_scheme = {
     -- Background color of the entire circle. This can be commented out if no
@@ -136,6 +149,58 @@ local dark_color_scheme = {
 ]]
 local colors = dark_color_scheme
 
+
+--[[
+    END OF USER CONFIGURATION OPTIONS
+]]
+
+
+--[[
+    Detect the number of CPU cores.
+]]
+local function get_cpu_count()
+    if io.popen then
+        local n = tonumber(io.popen("nproc"):read())
+        if n then return n end
+    end
+
+    -- Fallback method
+    local n = 0
+    while tonumber(conky_parse("${cpu cpu".. n .."}")) do
+        n = n + 1
+    end
+
+    return n - 1
+end
+
+--[[
+    Helper function. Checks if a value is in a table.
+]]
+function table.contains(t, value)
+    for i,v in ipairs(t) do
+        if v == value then
+            return true
+        end
+    end
+    return false
+end
+
+--[[
+    Detect network interfaces
+]]
+local function get_network_interfaces(ignore)
+    interfaces = {}
+    for iface in io.popen("ls -1 --indicator-style=none /sys/class/net"):lines() do
+        if not table.contains(ignore, iface) then
+            table.insert(interfaces, iface)
+        end
+    end
+    return interfaces
+end
+
+if settings.network.interfaces == nil then
+    settings.network.interfaces = get_network_interfaces(settings.network.ignore)
+end
 
 --[[
     Draws a ring in the clockwise direction.
@@ -432,11 +497,10 @@ end
 --[[
     Draws all network rings.
 ]]
-local function draw_network_rings(cr, radius)
+local function draw_network_rings(cr, radius, interfaces)
     local thickness = 12/536
     local spacing = 1/536
 
-    local interfaces = settings.network
     local n = #interfaces
 
     if n == 0 then
@@ -613,6 +677,17 @@ function conky_main()
         return
     end
 
+    if settings.cpu.count == 0 then
+        local n = get_cpu_count()
+        if n > 0 then
+            --print(n .." CPU cores detected.")
+            settings.cpu.count = n
+        else
+            -- Conky probably isn't ready yet.
+            return
+        end
+    end
+
     -- Window size change?
     if (not window or
         window.width ~= conky_window.width or
@@ -646,7 +721,7 @@ function conky_main()
     cairo_scale(cr, conky_window.width, conky_window.height)
 
     -- Draw all the widgets
-    draw_network_rings(cr, 130/536)
+    draw_network_rings(cr, 130/536, settings.network.interfaces)
     draw_memory_widget(cr, 130/536)
 
     if settings.battery then
