@@ -96,7 +96,7 @@ local settings = {
     },
 
     -- Battery ID
-    --battery = 0,
+    battery = 0,
 }
 
 --[[
@@ -104,8 +104,9 @@ local settings = {
 ]]
 local dark_color_scheme = {
     -- Background color of the entire circle. This can be commented out if no
-    -- background is desired.
-    --bg = { 0, 0, 0, .4 },
+    -- background is desired. This is primarily useful if the desktop background
+    -- color does not contrast well with Conky.
+    --bg = { 0, 0, 0, .1 },
 
     -- Primary ring color
     ring = {

@@ -5,20 +5,43 @@ adjusts to the size of the Conky window.
 
 [Conky]: http://en.wikipedia.org/wiki/Conky_(software)
 
+# Features
+
+ * Displays:
+    - Current time and date.
+    - CPU usage.
+    - Memory usage.
+    - Network usage over multiple interfaces.
+    - Battery charge and charging state.
+ * Auto-detects the number of CPU cores and network interfaces.
+ * Highly configurable, but should work with little to no configuration.
+
 # Screenshots
 
-Blank background:
+Conky with some CPU and network usage:
 
-![Conky with no background](https://raw.githubusercontent.com/jasonwhite/conky-config/master/greatcircle.png)
+![Conky](https://raw.githubusercontent.com/jasonwhite/conky-config/master/greatcircle.png)
 
-Conky on my desktop and with a battery attached:
+Conky with a battery attached and charging:
 
-![Conky with background and battery attached](https://raw.githubusercontent.com/jasonwhite/conky-config/master/greatcircle_bg.png)
+![Conky with battery](https://raw.githubusercontent.com/jasonwhite/conky-config/master/greatcircle_battery.png)
 
 # Dependencies
 
  * Conky with Lua support and Cairo bindings.
  * Cantarell and Impact fonts.
+
+To be sure that your Conky installation has both Lua support and Cairo bindings,
+check the output of `conky --version`.
+```bash
+$ conky --version
+ General:
+  * Lua
+
+ Lua bindings:
+  * Cairo
+```
+*Note that irrelevant output has been removed.*
 
 # Installation
 
@@ -51,11 +74,11 @@ If all Conky must die, then you should:
 # Configuration
 
 The size and position of the window is configured in the file `greatcircle`. By
-default, it is displayed on the desktop background at a specific size and place.
+default, it is displayed on the desktop background in the top left corner.
 Other possible arrangements are commented out in the same file.
 
-Settings such as the fonts used, number of CPUs, network interface names, and
-time formatting can be configured in `greatcircle.lua`.
+Settings such as the fonts used, colors, number of CPUs, network interface
+names, and time formatting can be configured in `greatcircle.lua`.
 
 # Trouble Shooting?
 
@@ -92,6 +115,16 @@ This will disable true transparency. Instead, Conky will perform its own
 blending with the desktop background image.
 
 Be sure to completely restart Conky after making the change.
+
+## Known Working Setup
+
+I have primarily tested this on [ArchLinux][] using the following packages:
+
+ * [i3](http://i3wm.org/) (window manager)
+ * [xcompmgr](https://wiki.archlinux.org/index.php/xcompmgr) (for compositing)
+ * [conky-lua-nv](https://aur.archlinux.org/packages/conky-lua-nv/) (Conky with Lua and Cairo support)
+
+[ArchLinux]: https://www.archlinux.org/
 
 # More Information
 
