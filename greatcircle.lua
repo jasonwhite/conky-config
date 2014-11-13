@@ -42,7 +42,7 @@ local settings = {
 
         --[[
             Starting and ending angles of CPU widgets in radians. (This adjusts
-            the spread.) Angles start 3:00 on a clock and increase in the
+            the spread.) Angles start at 3:00 on a clock and increase in the
             clockwise direction. (Recall that 2*pi radians constitutes one full
             cycle.)
         ]]
@@ -103,31 +103,43 @@ local settings = {
     Color scheme best for a somewhat dark desktop background.
 ]]
 local dark_color_scheme = {
-    -- Background color of the entire circle. This can be commented out if no
-    -- background is desired. This is primarily useful if the desktop background
-    -- color does not contrast well with Conky.
+    --[[
+        Background color of the entire circle. This can be commented out if no
+        background is desired. This is primarily useful if the desktop
+        background color does not contrast well with Conky.
+    ]]
     --bg = { 0, 0, 0, .1 },
 
-    -- Primary ring color
+    --[[
+        Primary ring color
+    ]]
     ring = {
         bg = { 1, 1, 1, .2 },
         fg = { 1, 1, 1, .9 },
     },
 
-    -- Alternate ring color
+    --[[
+        Alternate ring color
+    ]]
     ring_alt = {
         bg = { 1, 1, 1, .2 },
         fg = { .7, .9, 1, .8 },
     },
 
-    -- Primary text color
+    --[[
+        Primary text color
+    ]]
     text = { 1, 1, 1, 0.9 },
 
-    -- Alternate text color
+    --[[
+        Alternate text color
+    ]]
     text_alt = { 0.01, 0.75, 1, 1 },
 
-    -- Temperature colors
-    -- As many colors as desired can be added to this table.
+    --[[
+        Temperature colors. As many colors as desired can be added to this
+        table.
+    ]]
     temperature = {
         { .7, .9, 1, 0.9 },
         { 1,  1, 0, 0.9 },
@@ -135,8 +147,9 @@ local dark_color_scheme = {
         { 1,  0, 0, 0.9 },
     },
 
-    -- Battery colors
-    -- As many colors as desired can be added to this table.
+    --[[
+        Battery colors. As many colors as desired can be added to this table.
+    ]]
     battery = {
         { 0,  1, 0, 0.9 },
         { 1,  1, 0, 0.9 },
@@ -206,7 +219,9 @@ end
 --[[
     Draws a ring in the clockwise direction.
 ]]
-local function draw_ring(cr, ring, percentage)
+local function draw_ring(cr, ring, percentage, arc_fn)
+    arc_fn = arc_fn or cairo_arc
+
     local sa, ea = ring.start_angle, ring.end_angle
 
     local t_arc = percentage * (ea - sa)
@@ -217,14 +232,14 @@ local function draw_ring(cr, ring, percentage)
 
     -- Draw background ring
     if ring.bg then
-        cairo_arc(cr, ring.x, ring.y, ring.radius, sa, ea)
+        arc_fn(cr, ring.x, ring.y, ring.radius, sa, ea)
         cairo_set_source_rgba(cr, unpack(ring.bg))
         cairo_stroke(cr)
     end
 
     -- Draw foreground ring
     if ring.fg then
-        cairo_arc(cr, ring.x, ring.y, ring.radius, sa, sa + t_arc)
+        arc_fn(cr, ring.x, ring.y, ring.radius, sa, sa + t_arc)
         cairo_set_source_rgba(cr, unpack(ring.fg))
         cairo_stroke(cr)
     end
@@ -236,29 +251,7 @@ end
     Draws a ring in the counter-clockwise direction.
 ]]
 local function draw_ring_inverse(cr, ring, percentage)
-    local sa, ea = ring.start_angle, ring.end_angle
-
-    local t_arc = percentage * (ea - sa)
-
-    cairo_new_sub_path(cr)
-
-    cairo_set_line_width(cr, ring.thickness)
-
-    -- Draw background ring
-    if ring.bg then
-        cairo_arc_negative(cr, ring.x, ring.y, ring.radius, sa, ea)
-        cairo_set_source_rgba(cr, unpack(ring.bg))
-        cairo_stroke(cr)
-    end
-
-    -- Draw foreground ring
-    if ring.fg then
-        cairo_arc_negative(cr, ring.x, ring.y, ring.radius, sa, sa + t_arc)
-        cairo_set_source_rgba(cr, unpack(ring.fg))
-        cairo_stroke(cr)
-    end
-
-    cairo_close_path(cr)
+    draw_ring(cr, ring, percentage, cairo_arc_negative)
 end
 
 --[[
