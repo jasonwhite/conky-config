@@ -41,6 +41,9 @@ own_window_transparent yes
 # If you are not using a compositor (e.g., xcompmgr, Compiz, etc.), then this
 # option should be disabled.
 own_window_argb_visual yes
+# For Kwin Compositor to visualize Real transparency, uncomment the following line and
+# edit the above variable "own_window_type" to "normal" in place of "override"
+#own_window_hints undecorated,below,skip_taskbar,skip_pager
 
 # Load the Lua script
 lua_load ~/.config/conky/greatcircle.lua
